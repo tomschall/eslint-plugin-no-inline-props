@@ -1,5 +1,5 @@
-module.exports = {
-  rules: {
-    'no-inline-props': require('./rules/no-inline-props'),
-  },
+import rule from './rules/no-inline-props.js';
+
+export const rules = {
+  'no-inline-props': rule,
 };

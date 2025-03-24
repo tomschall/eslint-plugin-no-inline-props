@@ -1,30 +1,117 @@
-import { RuleTester } from 'eslint';
-import rule from '../rules/no-inline-props';
+import { RuleTester } from '@typescript-eslint/rule-tester';
+import rule from '../rules/no-inline-props.ts';
 
-const ruleTester = new RuleTester({
-  parserOptions: { ecmaVersion: 2020, ecmaFeatures: { jsx: true } },
-});
+const ruleTester = new RuleTester();
 
-ruleTester.run('no-inline-props', rule, {
+ruleTester.run('no-inline-props', rule as any, {
   valid: [
-    { code: 'const obj = {}; <Component item={obj} />;' },
-    { code: 'const handle = () => {}; <Component onClick={handle} />;' },
+    {
+      code: 'const obj = {}; <Component item={obj} />;',
+      languageOptions: {
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+    },
+    {
+      code: 'const handle = () => {}; <Component onClick={handle} />;',
+      languageOptions: {
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+    },
     {
       code: 'const content = <h1>Hello</h1>; <Component>{content}</Component>;',
+      languageOptions: {
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
     },
   ],
   invalid: [
     {
       code: '<Component item={{ foo: "bar" }} />',
-      errors: [{ message: /Inline prop "item"/ }],
+      languageOptions: {
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+      errors: [
+        {
+          messageId: 'inlineProp',
+          data: {
+            name: 'item',
+            type: 'ObjectExpression',
+          },
+        },
+      ],
     },
     {
       code: '<Component onClick={() => {}} />',
-      errors: [{ message: /Inline prop "onClick"/ }],
+      languageOptions: {
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+      errors: [
+        {
+          messageId: 'inlineProp',
+          data: {
+            name: 'onClick',
+            type: 'ArrowFunctionExpression',
+          },
+        },
+      ],
     },
     {
       code: '<Component>{<h1>Inline</h1>}</Component>',
-      errors: [{ message: /Inline prop "children"/ }],
+      languageOptions: {
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+      errors: [
+        {
+          messageId: 'inlineProp',
+          data: {
+            name: 'children',
+            type: 'JSXElement',
+          },
+        },
+      ],
+    },
+    {
+      code: '<Component><h1>Inline</h1></Component>',
+      languageOptions: {
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+      errors: [
+        {
+          messageId: 'inlineProp',
+          data: {
+            name: 'children',
+            type: 'JSXElement',
+          },
+        },
+      ],
     },
   ],
 });
