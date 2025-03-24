@@ -39,6 +39,48 @@ ruleTester.run(
           },
         },
       },
+      {
+        code: `
+        const content = <span><strong>Hello</strong></span>;
+        <Component>{content}</Component>;
+      `,
+        options: [{ excludeTags: ['span'] }],
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+      },
+      {
+        code: `
+        const table = <TableCell><h1>Test</h1></TableCell>;
+        <Component>{table}</Component>;
+      `,
+        options: [{ excludeTags: ['TableCell'] }],
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+      },
+      {
+        code: `
+        const content = <h1>Hello</h1>;
+        <MyComponent>{content}</MyComponent>;
+      `,
+        options: [{ excludeTags: ['MyComponent'] }],
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+      },
     ],
     invalid: [
       {
@@ -100,6 +142,50 @@ ruleTester.run(
       },
       {
         code: '<Component><h1>Inline</h1></Component>',
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+        errors: [
+          {
+            messageId: 'inlineProp',
+            data: {
+              name: 'children',
+              type: 'JSXElement',
+            },
+          },
+        ],
+      },
+      {
+        code: '<Custom><h1>Hello</h1></Custom>',
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+        options: [{ excludeTags: ['MyComponent'] }],
+        errors: [
+          {
+            messageId: 'inlineProp',
+            data: {
+              name: 'children',
+              type: 'JSXElement',
+            },
+          },
+        ],
+      },
+      {
+        code: `
+        <MyComponent>
+          <div><h1>Bad JSX</h1></div>
+        </MyComponent>
+      `,
+        options: [{ excludeTags: ['Custom', 'Component'] }],
         languageOptions: {
           parserOptions: {
             ecmaFeatures: {
