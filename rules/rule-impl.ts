@@ -17,6 +17,15 @@ const rule: TSESLint.RuleModule<'inlineProp', []> = {
   create(context: TSESLint.RuleContext<'inlineProp', []>) {
     return {
       JSXAttribute(node: TSESTree.JSXAttribute) {
+        // ❗️ Check if parent element is native HTML, we don't want to enforce this rule on them
+        const parent = node.parent as TSESTree.JSXOpeningElement;
+        if (
+          parent.name.type === 'JSXIdentifier' &&
+          /^[a-z]/.test(parent.name.name)
+        ) {
+          return;
+        }
+
         const val =
           node.value?.type === 'JSXExpressionContainer'
             ? node.value.expression
