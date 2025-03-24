@@ -1,14 +1,15 @@
 # eslint-plugin-no-inline-props
 
-🚫 Disallows passing inline objects/functions/JSX as props in React components.  
+🚫 Disallows passing inline objects/functions/JSX as props in React components.
 ✅ Helps avoid unnecessary re-renders when using `React.memo`.
 
 ## ❗ Problem
 
-```jsx
+```tsx
 <UniversalLink item={{ '@id': '/a' }} />
 <UniversalLink onClick={() => doSomething()} />
 <UniversalLink>{<h1>Hello</h1>}</UniversalLink>
+<UniversalLink><h1>Hello</h1></UniversalLink>
 ```
 
 This creates **new references on every render** → breaks memoization.
@@ -25,20 +26,20 @@ This creates **new references on every render** → breaks memoization.
 
 Define the object outside of the component:
 
-```js
+```ts
 // ✅ GOOD
 const item = { '@id': '/a' };
 ```
 
 and then pass `item` as a prop:
 
-```jsx
+```tsx
 <UniversalLink item={item} />
 ```
 
 ## ❌ Example
 
-```jsx
+```tsx
 // ❌ BAD
 <UniversalLink item={{ '@id': '/a' }} />
 ```
