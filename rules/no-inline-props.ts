@@ -1,4 +1,6 @@
-const rule = {
+import { TSESTree, TSESLint } from '@typescript-eslint/utils';
+
+const rule: TSESLint.RuleModule<'inlineProp', []> = {
   meta: {
     type: 'problem',
     docs: {
@@ -11,10 +13,15 @@ const rule = {
     },
     schema: [],
   },
-  create(context: any) {
+  defaultOptions: [],
+  create(context: TSESLint.RuleContext<'inlineProp', []>) {
     return {
-      JSXAttribute(node: any) {
-        const val = node.value?.expression;
+      JSXAttribute(node: TSESTree.JSXAttribute) {
+        const val =
+          node.value?.type === 'JSXExpressionContainer'
+            ? node.value.expression
+            : null;
+
         if (!val) return;
 
         const isInline =
@@ -33,8 +40,8 @@ const rule = {
           });
         }
       },
-      JSXElement(node: any) {
-        node.children.forEach((child: any) => {
+      JSXElement(node: TSESTree.JSXElement) {
+        node.children.forEach((child) => {
           // Case 1: <Component>{<h1>...</h1>}</Component>
           if (
             child.type === 'JSXExpressionContainer' &&
