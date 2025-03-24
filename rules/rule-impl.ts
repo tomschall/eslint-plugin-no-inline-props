@@ -42,7 +42,15 @@ const rule: TSESLint.RuleModule<'inlineProp', []> = {
       },
       JSXElement(node: TSESTree.JSXElement) {
         node.children.forEach((child) => {
-          // Case 1: <Component>{<h1>...</h1>}</Component> oder andere Expressions
+          // ⛔ Skip native HTML elements like <div>, <nav>, etc.
+          if (
+            node.openingElement.name.type === 'JSXIdentifier' &&
+            /^[a-z]/.test(node.openingElement.name.name)
+          ) {
+            return;
+          }
+
+          // Case 1: <Component>{<h1>...</h1>}</Component> or other expressions
           if (
             child.type === 'JSXExpressionContainer' &&
             [
