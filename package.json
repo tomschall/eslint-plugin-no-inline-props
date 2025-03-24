@@ -1,15 +1,18 @@
 {
   "name": "eslint-plugin-no-inline-props",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "ESLint rule to prevent passing inline objects, functions or JSX as props (causes unnecessary rerenders).",
   "main": "index.cjs",
   "type": "commonjs",
   "exports": {
     ".": {
-      "require": "./index.cjs",
-      "import": "./index.js"
+      "require": "./index.cjs"
     }
   },
+  "files": [
+    "dist",
+    "index.cjs"
+  ],
   "keywords": [
     "eslint",
     "eslintplugin",
