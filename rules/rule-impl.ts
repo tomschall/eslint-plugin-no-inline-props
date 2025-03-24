@@ -1,6 +1,12 @@
 import { TSESTree, TSESLint } from '@typescript-eslint/utils';
 
-const rule: TSESLint.RuleModule<'inlineProp', []> = {
+export type Options = [
+  {
+    excludeTags?: string[];
+  },
+];
+
+const rule: TSESLint.RuleModule<'inlineProp', Options> = {
   meta: {
     type: 'problem',
     docs: {
@@ -11,10 +17,26 @@ const rule: TSESLint.RuleModule<'inlineProp', []> = {
       inlineProp:
         '⚠️ Inline prop "{{name}}" detected ({{type}}). Extract to a variable.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          excludeTags: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
+        additionalProperties: false,
+      },
+    ],
   },
-  defaultOptions: [],
-  create(context: TSESLint.RuleContext<'inlineProp', []>) {
+  defaultOptions: [{}],
+  create(context: TSESLint.RuleContext<'inlineProp', Options>) {
+    const [options] = context.options;
+    const excludeTags = options?.excludeTags ?? [];
+
     return {
       JSXAttribute(node: TSESTree.JSXAttribute) {
         // ❗️ Check if parent element is native HTML, we don't want to enforce this rule on them
@@ -51,6 +73,17 @@ const rule: TSESLint.RuleModule<'inlineProp', []> = {
       },
       JSXElement(node: TSESTree.JSXElement) {
         node.children.forEach((child) => {
+          if (
+            node.openingElement.name.type === 'JSXIdentifier' &&
+            node.openingElement.name.name
+          ) {
+            const tagName = node.openingElement.name.name;
+
+            if (excludeTags.includes(tagName)) {
+              return;
+            }
+          }
+
           // ⛔ Skip native HTML elements like <div>, <nav>, etc.
           if (
             node.openingElement.name.type === 'JSXIdentifier' &&

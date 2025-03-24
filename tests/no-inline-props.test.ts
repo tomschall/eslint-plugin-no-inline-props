@@ -1,12 +1,12 @@
 import { RuleTester } from '@typescript-eslint/rule-tester';
-import rule from '../rules/rule-impl.ts';
+import rule, { Options } from '../rules/rule-impl.ts';
 import { TSESLint } from '@typescript-eslint/utils';
 
 const ruleTester = new RuleTester();
 
 ruleTester.run(
   'no-inline-props',
-  rule as TSESLint.RuleModule<'inlineProp', []>,
+  rule as TSESLint.RuleModule<'inlineProp', Options>,
   {
     valid: [
       {
