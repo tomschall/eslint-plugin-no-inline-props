@@ -42,17 +42,22 @@ const rule: TSESLint.RuleModule<'inlineProp', []> = {
       },
       JSXElement(node: TSESTree.JSXElement) {
         node.children.forEach((child) => {
-          // Case 1: <Component>{<h1>...</h1>}</Component>
+          // Case 1: <Component>{<h1>...</h1>}</Component> oder andere Expressions
           if (
             child.type === 'JSXExpressionContainer' &&
-            child.expression.type === 'JSXElement'
+            [
+              'JSXElement',
+              'ObjectExpression',
+              'ArrowFunctionExpression',
+              'FunctionExpression',
+            ].includes(child.expression.type)
           ) {
             context.report({
               node: child.expression,
               messageId: 'inlineProp',
               data: {
                 name: 'children',
-                type: 'JSXElement',
+                type: child.expression.type,
               },
             });
           }
@@ -64,7 +69,7 @@ const rule: TSESLint.RuleModule<'inlineProp', []> = {
               messageId: 'inlineProp',
               data: {
                 name: 'children',
-                type: 'JSXElement',
+                type: child.type,
               },
             });
           }
