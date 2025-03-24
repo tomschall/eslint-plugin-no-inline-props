@@ -1,26 +1,26 @@
 {
-	"name": "eslint-plugin-no-inline-props",
-	"version": "1.0.0",
-	"description": "ESLint rule to prevent passing inline objects, functions or JSX as props (causes unnecessary rerenders).",
-	"main": "index.js",
-	"keywords": [
-		"eslint",
-		"eslintplugin",
-		"react",
-		"performance",
-		"inline",
-		"memo"
-	],
-	"author": "Thomas Schallert",
-	"license": "MIT",
-	"peerDependencies": {
-		"eslint": "^8.0.0"
-	},
-	"devDependencies": {
-		"eslint": "^8.57.0",
-		"eslint-rule-tester": "^3.4.0"
-	},
-	"scripts": {
-		"test": "node tests/no-inline-props.test.js"
-	}
+  "name": "eslint-plugin-no-inline-props",
+  "version": "1.0.0",
+  "description": "ESLint rule to prevent passing inline objects, functions or JSX as props (causes unnecessary rerenders).",
+  "main": "index.js",
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "react",
+    "performance",
+    "inline",
+    "memo"
+  ],
+  "author": "Thomas Schallert",
+  "license": "MIT",
+  "peerDependencies": {
+    "eslint": "^8.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "@typescript-eslint/rule-tester": "^8.27.0"
+  },
+  "scripts": {
+    "test": "node tests/no-inline-props.test.js"
+  }
 }

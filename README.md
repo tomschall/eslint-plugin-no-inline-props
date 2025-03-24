@@ -27,7 +27,7 @@ Define the object outside of the component:
 
 ```js
 // ✅ GOOD
-const item = { "@id": "/a" }
+const item = { '@id': '/a' };
 ```
 
 and then pass `item` as a prop:
@@ -40,7 +40,7 @@ and then pass `item` as a prop:
 
 ```jsx
 // ❌ BAD
-<UniversalLink item={{ "@id": "/a" }} />
+<UniversalLink item={{ '@id': '/a' }} />
 ```
 
 ## 🔧 Usage

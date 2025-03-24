@@ -1,5 +1,5 @@
 module.exports = {
-	rules: {
-		"no-inline-props": require("./rules/no-inline-props"),
-	},
-}
+  rules: {
+    'no-inline-props': require('./rules/no-inline-props'),
+  },
+};
