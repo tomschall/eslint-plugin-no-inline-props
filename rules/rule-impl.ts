@@ -2,7 +2,8 @@ import { TSESTree, TSESLint } from '@typescript-eslint/utils';
 
 export type Options = [
   {
-    excludeTags?: string[];
+    excludeProps?: string[];
+    ignoreHtmlTags?: boolean;
   },
 ];
 
@@ -21,32 +22,41 @@ const rule: TSESLint.RuleModule<'inlineProp', Options> = {
       {
         type: 'object',
         properties: {
-          excludeTags: {
+          excludeProps: {
             type: 'array',
-            items: {
-              type: 'string',
-            },
+            items: { type: 'string' },
+          },
+          ignoreHtmlTags: {
+            type: 'boolean',
+            default: false,
           },
         },
         additionalProperties: false,
       },
     ],
   },
-  defaultOptions: [{}],
+  defaultOptions: [{ ignoreHtmlTags: false }],
   create(context: TSESLint.RuleContext<'inlineProp', Options>) {
     const [options] = context.options;
-    const excludeTags = options?.excludeTags ?? [];
+    const excludeProps = new Set(options?.excludeProps ?? []);
+
+    console.log('options:', options);
 
     return {
       JSXAttribute(node: TSESTree.JSXAttribute) {
-        // ❗️ Check if parent element is native HTML, we don't want to enforce this rule on them
         const parent = node.parent as TSESTree.JSXOpeningElement;
-        if (
-          parent.name.type === 'JSXIdentifier' &&
-          /^[a-z]/.test(parent.name.name)
-        ) {
+        const tagName =
+          parent.name.type === 'JSXIdentifier' ? parent.name.name : null;
+
+        const ignoreHtmlTags = options?.ignoreHtmlTags ?? true;
+
+        if (ignoreHtmlTags && tagName && /^[a-z]/.test(tagName)) {
           return;
         }
+
+        const propName = node.name.name;
+        if (typeof propName !== 'string') return;
+        if (excludeProps.has(propName)) return;
 
         const val =
           node.value?.type === 'JSXExpressionContainer'
@@ -58,6 +68,7 @@ const rule: TSESLint.RuleModule<'inlineProp', Options> = {
         const isInline =
           val.type === 'ObjectExpression' ||
           val.type === 'ArrowFunctionExpression' ||
+          val.type === 'FunctionExpression' ||
           val.type === 'JSXElement';
 
         if (isInline) {
@@ -65,65 +76,37 @@ const rule: TSESLint.RuleModule<'inlineProp', Options> = {
             node,
             messageId: 'inlineProp',
             data: {
-              name: node.name.name,
+              name: propName,
               type: val.type,
             },
           });
         }
       },
-      JSXElement(node: TSESTree.JSXElement) {
-        node.children.forEach((child) => {
-          if (
-            node.openingElement.name.type === 'JSXIdentifier' &&
-            node.openingElement.name.name
-          ) {
-            const tagName = node.openingElement.name.name;
 
-            if (excludeTags.includes(tagName)) {
-              return;
-            }
-          }
+      JSXExpressionContainer(node: TSESTree.JSXExpressionContainer) {
+        const expr = node.expression;
 
-          // ⛔ Skip native HTML elements like <div>, <nav>, etc.
-          if (
-            node.openingElement.name.type === 'JSXIdentifier' &&
-            /^[a-z]/.test(node.openingElement.name.name)
-          ) {
-            return;
-          }
+        // 🛑 Verhindere doppelte Reports in Props
+        if (node.parent?.type === 'JSXAttribute') return;
 
-          // Case 1: <Component>{<h1>...</h1>}</Component> or other expressions
-          if (
-            child.type === 'JSXExpressionContainer' &&
-            [
-              'JSXElement',
-              'ObjectExpression',
-              'ArrowFunctionExpression',
-              'FunctionExpression',
-            ].includes(child.expression.type)
-          ) {
-            context.report({
-              node: child.expression,
-              messageId: 'inlineProp',
-              data: {
-                name: 'children',
-                type: child.expression.type,
-              },
-            });
-          }
+        const INLINE_TYPES = new Set([
+          'JSXElement',
+          'JSXFragment',
+          'ObjectExpression',
+          'ArrowFunctionExpression',
+          'FunctionExpression',
+        ]);
 
-          // Case 2: <Component><h1>...</h1></Component>
-          if (child.type === 'JSXElement') {
-            context.report({
-              node: child,
-              messageId: 'inlineProp',
-              data: {
-                name: 'children',
-                type: child.type,
-              },
-            });
-          }
-        });
+        if (expr && INLINE_TYPES.has(expr.type)) {
+          context.report({
+            node: expr,
+            messageId: 'inlineProp',
+            data: {
+              name: 'children',
+              type: expr.type,
+            },
+          });
+        }
       },
     };
   },

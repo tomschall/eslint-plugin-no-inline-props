@@ -40,11 +40,7 @@ ruleTester.run(
         },
       },
       {
-        code: `
-        const content = <span><strong>Hello</strong></span>;
-        <Component>{content}</Component>;
-      `,
-        options: [{ excludeTags: ['span'] }],
+        code: '<Component><h1>Inline</h1></Component>',
         languageOptions: {
           parserOptions: {
             ecmaFeatures: {
@@ -54,11 +50,34 @@ ruleTester.run(
         },
       },
       {
+        code: '<Custom><h1><span>Hello</span></h1></Custom>',
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+      },
+      // That's valid because it is an identifier, not a JSX element
+      {
         code: `
-        const table = <TableCell><h1>Test</h1></TableCell>;
-        <Component>{table}</Component>;
+        <MyComponent>
+          <div><h1><span>{test}</span></h1></div>
+        </MyComponent>
       `,
-        options: [{ excludeTags: ['TableCell'] }],
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+      },
+      // Some valid examples with excluded props
+      {
+        code: '<Component item={obj} test={{test: "abc"}} />;',
+        options: [{ excludeProps: ['test'] }],
         languageOptions: {
           parserOptions: {
             ecmaFeatures: {
@@ -68,11 +87,31 @@ ruleTester.run(
         },
       },
       {
-        code: `
-        const content = <h1>Hello</h1>;
-        <MyComponent>{content}</MyComponent>;
-      `,
-        options: [{ excludeTags: ['MyComponent'] }],
+        code: '<Component item={obj} children={<h1>Some Text</h1>} />;',
+        options: [{ excludeProps: ['children'] }],
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+      },
+      // Test with ignoreHtmlTags option
+      {
+        code: '<button onClick={handle} children={test} />;',
+        options: [{ ignoreHtmlTags: false }],
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+      },
+      {
+        code: '<button onClick={handle} children={<h1>Some Text</h1>} />;',
+        options: [{ ignoreHtmlTags: false, excludeProps: ['children'] }],
         languageOptions: {
           parserOptions: {
             ecmaFeatures: {
@@ -82,6 +121,7 @@ ruleTester.run(
         },
       },
     ],
+
     invalid: [
       {
         code: '<Component item={{ foo: "bar" }} />',
@@ -141,7 +181,7 @@ ruleTester.run(
         ],
       },
       {
-        code: '<Component><h1>Inline</h1></Component>',
+        code: '<Component><div>{<div><h1>Inline</h1></div>}</div></Component>',
         languageOptions: {
           parserOptions: {
             ecmaFeatures: {
@@ -160,7 +200,7 @@ ruleTester.run(
         ],
       },
       {
-        code: '<Custom><h1>Hello</h1></Custom>',
+        code: '<Component onClick={() => {}}>{<div>test with children</div>}</Component>',
         languageOptions: {
           parserOptions: {
             ecmaFeatures: {
@@ -168,8 +208,14 @@ ruleTester.run(
             },
           },
         },
-        options: [{ excludeTags: ['MyComponent'] }],
         errors: [
+          {
+            messageId: 'inlineProp',
+            data: {
+              name: 'onClick',
+              type: 'ArrowFunctionExpression',
+            },
+          },
           {
             messageId: 'inlineProp',
             data: {
@@ -180,12 +226,7 @@ ruleTester.run(
         ],
       },
       {
-        code: `
-        <MyComponent>
-          <div><h1>Bad JSX</h1></div>
-        </MyComponent>
-      `,
-        options: [{ excludeTags: ['Custom', 'Component'] }],
+        code: '<Component item={{ foo: "bar" }} children={<h1>test with children</h1>} />',
         languageOptions: {
           parserOptions: {
             ecmaFeatures: {
@@ -194,6 +235,41 @@ ruleTester.run(
           },
         },
         errors: [
+          {
+            messageId: 'inlineProp',
+            data: {
+              name: 'item',
+              type: 'ObjectExpression',
+            },
+          },
+          {
+            messageId: 'inlineProp',
+            data: {
+              name: 'children',
+              type: 'JSXElement',
+            },
+          },
+        ],
+      },
+      // Test with ignoreHtmlTags option
+      {
+        code: '<button onClick={() => {}} children={<h1>test with children</h1>} />',
+        options: [{ ignoreHtmlTags: false }],
+        languageOptions: {
+          parserOptions: {
+            ecmaFeatures: {
+              jsx: true,
+            },
+          },
+        },
+        errors: [
+          {
+            messageId: 'inlineProp',
+            data: {
+              name: 'onClick',
+              type: 'ArrowFunctionExpression',
+            },
+          },
           {
             messageId: 'inlineProp',
             data: {
