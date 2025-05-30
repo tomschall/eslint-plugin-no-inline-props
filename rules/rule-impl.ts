@@ -40,8 +40,6 @@ const rule: TSESLint.RuleModule<'inlineProp', Options> = {
     const [options] = context.options;
     const excludeProps = new Set(options?.excludeProps ?? []);
 
-    console.log('options:', options);
-
     return {
       JSXAttribute(node: TSESTree.JSXAttribute) {
         const parent = node.parent as TSESTree.JSXOpeningElement;
@@ -86,7 +84,7 @@ const rule: TSESLint.RuleModule<'inlineProp', Options> = {
       JSXExpressionContainer(node: TSESTree.JSXExpressionContainer) {
         const expr = node.expression;
 
-        // 🛑 Verhindere doppelte Reports in Props
+        // 🛑 Prevent duplicate reports in props
         if (node.parent?.type === 'JSXAttribute') return;
 
         const INLINE_TYPES = new Set([
