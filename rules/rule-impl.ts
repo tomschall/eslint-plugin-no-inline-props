@@ -35,7 +35,7 @@ const rule: TSESLint.RuleModule<'inlineProp', Options> = {
       },
     ],
   },
-  defaultOptions: [{ ignoreHtmlTags: false }],
+  defaultOptions: [{ ignoreHtmlTags: true }],
   create(context: TSESLint.RuleContext<'inlineProp', Options>) {
     const [options] = context.options;
     const excludeProps = new Set(options?.excludeProps ?? []);

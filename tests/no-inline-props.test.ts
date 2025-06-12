@@ -74,7 +74,7 @@ ruleTester.run(
           },
         },
       },
-      // Some valid examples with excluded props
+      // Some valid examples when excluding props
       {
         code: '<Component item={obj} test={{test: "abc"}} />;',
         options: [{ excludeProps: ['test'] }],
